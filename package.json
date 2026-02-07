@@ -1,0 +1,12 @@
+{
+  "name": "miperplexity-cli",
+  "version": "1.0.0",
+  "description": "CLI similar to Perplexit - Learning project from Master's in Development with IA",
+  "license": "ISC",
+  "author": "Gabriela Hernández Paulín",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
