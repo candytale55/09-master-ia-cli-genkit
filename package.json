@@ -1,12 +1,19 @@
 {
-  "name": "miperplexity-cli",
+  "name": "myperplexity-cli",
   "version": "1.0.0",
   "description": "CLI similar to Perplexit - Learning project from Master's in Development with IA",
   "license": "ISC",
+  "dependencies": {
+    "@genkit-ai/google-genai": "^1.28.0",
+    "@tavily/core": "^0.7.1",
+    "genkit": "^1.28.0"
+  },
   "author": "Gabriela Hernández Paulín",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "genkit start -- index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
