@@ -1,19 +1,12 @@
 import dotenv from 'dotenv';
 import chalk from 'chalk';
+import { tavily } from '@tavily/core';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 // Load environment variables
 dotenv.config();
-// test .env variables
-console.log("TAVILY_API_KEY present?", Boolean(process.env.TAVILY_API_KEY));
-console.log("GOOGLE_API_KEY present?", Boolean(process.env.GOOGLE_API_KEY));
 
-// Test correct (Output):
-/* 
-[dotenv@17.2.4] injecting env (2) from .env -- tip: ⚙️  specify custom .env
- file path with { path: '/custom/path/.env' }
-TAVILY_API_KEY present? true
-GOOGLE_API_KEY present? true
- */
 
 
 // This function launches the CLI
@@ -22,12 +15,22 @@ async function startInteractive() {
     try {
         const TavilyApiKey = process.env.TAVILY_API_KEY;
         if (!TavilyApiKey) {
-            throw new Error(chalk.red('TAVILY_API_KEY is not set in the environment variables.'));
+            throw new Error('TAVILY_API_KEY is not set in the environment variables.');
         }
-        const GoogleApiKey = process.env.GOOGLE_API_KEY;
-        if (!GoogleApiKey) {
-            throw new Error(chalk.red('GOOGLE_API_KEY is not set in the environment variables.'));
+        const GeminiApiKey = process.env.GOOGLE_API_KEY;
+        if (!GeminiApiKey) {
+            throw new Error('GOOGLE_API_KEY is not set in the environment variables.');
         }
+
+        // Create clients
+        const client = tavily({ apiKey: TavilyApiKey }); //TODO: Rename client to clientTavily or similar if possible
+
+        // "ai" because genkit docs use it 
+        const ai = genkit({
+            plugins: [googleAI({ apiKey: GeminiApiKey })],
+        });
+
+
     } catch (error) {
         console.error(chalk.red('\n❌ Error:'), error.message);
 
