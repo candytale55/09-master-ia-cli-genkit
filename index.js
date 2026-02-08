@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import chalk from 'chalk';
+import ora from 'ora';
 import { tavily } from '@tavily/core';
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
@@ -51,6 +52,47 @@ async function startInteractive() {
         console.log(chalk.gray('Commands: exit, quit, or press Ctrl+C to leave\n'));
         
         rl.prompt();
+
+        rl.on('line', async (line) => {
+            const query = line.trim();
+
+            // If user didn't type anything.
+            if (!query) {
+                rl.prompt();
+                return;
+            }
+
+            // Exit commands
+            if (query.toLowerCase() === 'exit' || query.toLowerCase() === 'quit') {
+                console.log(chalk.yellow('\n👋 Exiting Superplexity CLI. Goodbye!\n'));
+                rl.close();
+                return; 
+            }
+
+            // If the user typed a query - pause and process
+            rl.pause();
+
+            let spinner;
+            try {
+                spinner = ora('🧁 Thinking...').start();
+
+                // Call chat
+                // const {text} = await chat.send(query);
+                
+                spinner.succeed('✅ Answer Received!\n');
+                
+                // Show the answer (Simulated)
+                console.log(chalk.blue.bold('Answer:'));
+                console.log(chalk.white('This is a simulated answer to your question: ' + query + '\n'));
+            
+            } catch (error) {
+                if (spinner) spinner.fail('❌ Error occurred while getting the answer.');
+                console.error(chalk.red('Error:'), error.message);
+            } finally {
+                rl.resume(); // reanudate entry
+                rl.prompt();
+            }
+        });
 
     } catch (error) {
         console.error(chalk.red('\n❌ Error:'), error.message);
