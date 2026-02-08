@@ -2,13 +2,15 @@ import dotenv from 'dotenv';
 import chalk from 'chalk';
 import ora from 'ora';
 import { tavily } from '@tavily/core';
-import { genkit } from 'genkit';
+import { genkit } from 'genkit/beta';
 import { googleAI } from '@genkit-ai/google-genai';
 import readline from 'readline';
+import { createChatAgent } from './src/agent.js';
+
 
 // readLine is a core module from node that allows you to read from CLI without having to add an external library. 
 
-    
+
 // Load environment variables
 dotenv.config();
 
@@ -28,16 +30,19 @@ async function startInteractive() {
         }
 
         // Create clients
-        const client = tavily({ apiKey: TavilyApiKey }); //TODO: Rename client to clientTavily or similar if possible
+        const client = tavily({ apiKey: TavilyApiKey });
 
         // "ai" because genkit docs use it 
         const ai = genkit({
             plugins: [googleAI({ apiKey: GeminiApiKey })],
         });
 
+        // Create chat agent with search capabilities
+        const chat = createChatAgent(ai, client, googleAI.model('gemini-2.5-flash'));
+
         // Create interface
         const rl = readline.createInterface({
-            input: process.stdin, 
+            input: process.stdin,
             output: process.stdout,
             prompt: chalk.green.bold('\n💬 Ask a question (or type "exit" to quit): '),
             terminal: true
@@ -45,12 +50,12 @@ async function startInteractive() {
         // readline creates a controlled conversation loop between stdin(what the user types) and stdout(what the program prints).
 
         console.log(chalk.cyan.bold('\n╔═══════════════════════════════════════════════════╗'));
-        console.log(chalk.cyan.bold('║   Welcome to Superplexity CLI - Interactive Mode  ║'));
+        console.log(chalk.cyan.bold('║   Welcome to Myperplexity CLI - Interactive Mode  ║'));
         console.log(chalk.cyan.bold('╚═══════════════════════════════════════════════════╝'));
         console.log(chalk.gray('Type your questions an get AI-powdered answers with sources'));
         console.log(chalk.gray('Chat history is maintained during this session.'));
         console.log(chalk.gray('Commands: exit, quit, or press Ctrl+C to leave\n'));
-        
+
         rl.prompt();
 
         rl.on('line', async (line) => {
@@ -66,7 +71,7 @@ async function startInteractive() {
             if (query.toLowerCase() === 'exit' || query.toLowerCase() === 'quit') {
                 console.log(chalk.yellow('\n👋 Exiting Superplexity CLI. Goodbye!\n'));
                 rl.close();
-                return; 
+                return;
             }
 
             // If the user typed a query - pause and process
@@ -76,15 +81,16 @@ async function startInteractive() {
             try {
                 spinner = ora('🧁 Thinking...').start();
 
-                // Call chat
-                // const {text} = await chat.send(query);
-                
+
+                // Call Chat
+                const { text } = await chat.send(query);
+
                 spinner.succeed('✅ Answer Received!\n');
-                
+
                 // Show the answer (Simulated)
                 console.log(chalk.blue.bold('Answer:'));
-                console.log(chalk.white('This is a simulated answer to your question: ' + query + '\n'));
-            
+                console.log(chalk.white(text));
+
             } catch (error) {
                 if (spinner) spinner.fail('❌ Error occurred while getting the answer.');
                 console.error(chalk.red('Error:'), error.message);
