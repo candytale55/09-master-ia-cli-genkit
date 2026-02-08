@@ -3,6 +3,7 @@
 
 https://genkit.dev/docs/get-started/
 https://genkit.dev/docs/chat/ 
+https://genkit.dev/docs/tool-calling/ 
 https://www.tavily.com/about
 https://www.npmjs.com/package/@tavily/core
 https://www.npmjs.com/package/chalk 
