@@ -11,8 +11,14 @@ dotenv.config();
 
 async function startInteractive() {
     try {
-        nonexistentFunction(); // test chalk
-        
+        const TavilyApiKey = process.env.TAVILY_API_KEY;
+        if (!TavilyApiKey) {
+            throw new Error(chalk.red('TAVILY_API_KEY is not set in the environment variables.'));
+        }
+        const GoogleApiKey = process.env.GOOGLE_API_KEY;
+        if (!GoogleApiKey) {
+            throw new Error(chalk.red('GOOGLE_API_KEY is not set in the environment variables.'));
+        }
     } catch (error) {
         console.error(chalk.red('\n❌ Error:'), error.message);
 
