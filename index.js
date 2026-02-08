@@ -3,8 +3,17 @@ import chalk from 'chalk';
 
 // Load environment variables
 dotenv.config();
+// test .env variables
+console.log("TAVILY_API_KEY present?", Boolean(process.env.TAVILY_API_KEY));
+console.log("GOOGLE_API_KEY present?", Boolean(process.env.GOOGLE_API_KEY));
 
-
+// Test correct (Output):
+/* 
+[dotenv@17.2.4] injecting env (2) from .env -- tip: ⚙️  specify custom .env
+ file path with { path: '/custom/path/.env' }
+TAVILY_API_KEY present? true
+GOOGLE_API_KEY present? true
+ */
 
 
 // This function launches the CLI
