@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { searchWeb } from './search.js';
 
 // ai is Genkit, client is Tavili
 
@@ -13,9 +14,13 @@ export function createSearchTool(ai, client) {
     }, async (input) => {
         // Perform the web search using GoogleAI Client
 
-        // const searchResults = await searchWeb(client, input.query, 5);
+        const searchResults = await searchWeb(client, input.query, 5);
 
         // Format searchResults
+        const formattedResults = searchResults.results
+            .map((result, index) => {
+                return `[${index + 1}] ${result.title}\nURL: ${result.url}\nContent: ${result.content}\n`;
+            }).join('\n');
 
         return `Search results for "${input.query}":`;
     });    
