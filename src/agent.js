@@ -1,8 +1,20 @@
-import { z } from 'zod';
+/**
+ * Agent Module - Creates AI chat agent with web search capabilities
+ * 
+ * Exports:
+ * - createSearchTool: Defines a Genkit tool that performs web searches
+ * - createChatAgent: Creates a chat agent with search tool and prompt configuration
+ */
+
+import { z } from 'zod';          // Schema validation
 import { searchWeb } from './search.js';
 
-// ai is Genkit, client is Tavili
-
+/**
+ * Creates a Genkit tool for web search using Tavily
+ * @param {Object} ai - Genkit instance
+ * @param {Object} client - Tavily client
+ * @returns {Object} Genkit tool definition
+ */
 export function createSearchTool(ai, client) {
     return ai.defineTool({
         name: 'searchWeb',
@@ -12,29 +24,33 @@ export function createSearchTool(ai, client) {
         }),
         outputSchema: z.string().describe('The search results as a formatted string including titles, snippets, and URLs'),
     }, async (input) => {
-        // Perform the web search using GoogleAI Client
-
+        // Execute web search via Tavily
         const searchResults = await searchWeb(client, input.query, 5);
 
-        // Format searchResults
+        // Format results as numbered list with title, URL, and content
         const formattedResults = searchResults.results
             .map((result, index) => {
                 return `[${index + 1}] ${result.title}\nURL: ${result.url}\nContent: ${result.content}\n`;
             }).join('\n');
 
         return `Search results for "${input.query}":`;
-    });    
+    });
 }
 
-
+/**
+ * Creates a chat agent with web search capabilities
+ * @param {Object} ai - Genkit instance
+ * @param {Object} client - Tavily client
+ * @param {Object} model - Google AI model to use (e.g., gemini-2.5-flash-lite)
+ * @returns {Object} Chat session with send() method
+ */
 export function createChatAgent(ai, client, model) {
-    // Define the Search Tool
+    // Define the search tool for the agent
     const searchTool = createSearchTool(ai, client);
 
-    // Create the Chat Agent with the Tool
-
+    // Define prompt with instructions for the AI and attach the search tool
     const searchPrompt = ai.definePrompt({
-        name: 'searchPrompt', 
+        name: 'searchPrompt',
         description: 'Prompt that searches the web to answer user queries based on current information.',
         model: model,
         input: {
@@ -42,7 +58,7 @@ export function createChatAgent(ai, client, model) {
                 query: z.string().describe('The user query to be answered using web search results.'),
             }),
         },
-        tools: [searchTool], 
+        tools: [searchTool],  // Attach searchWeb tool so AI can call it
         prompt: `You are a helpful AI assistant that provides comprehensive and accurate answers based on search results.
         
         User Query: {{query}}

@@ -1,25 +1,33 @@
+/**
+ * Myperplexity CLI - An AI-powered interactive CLI that answers questions using web search
+ * 
+ * This is the main entry point that:
+ * 1. Initializes Tavily (search) and Genkit with Google AI (LLM) clients
+ * 2. Creates a chat agent that combines search results with AI responses
+ * 3. Runs an interactive readline loop to handle user queries
+ */
+
 import dotenv from 'dotenv';
-import chalk from 'chalk';
-import ora from 'ora';
-import { tavily } from '@tavily/core';
-import { genkit } from 'genkit/beta';
-import { googleAI } from '@genkit-ai/google-genai';
-import readline from 'readline';
+import chalk from 'chalk';        // Terminal string styling
+import ora from 'ora';            // Elegant terminal spinner
+import { tavily } from '@tavily/core';          // Web search API
+import { genkit } from 'genkit/beta';           // Genkit AI framework
+import { googleAI } from '@genkit-ai/google-genai';  // Google AI plugin
+import readline from 'readline';  // Node.js built-in for CLI input
 import { createChatAgent } from './src/agent.js';
 
-
-// readLine is a core module from node that allows you to read from CLI without having to add an external library. 
-
-
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
 
 
-// This function launches the CLI
-
+/**
+ * Main function that launches the interactive CLI
+ * Sets up the AI agent and handles the question-answer loop
+ */
 async function startInteractive() {
     try {
+        // Validate required API keys
         const TavilyApiKey = process.env.TAVILY_API_KEY;
         if (!TavilyApiKey) {
             throw new Error('TAVILY_API_KEY is not set in the environment variables.');
@@ -29,25 +37,24 @@ async function startInteractive() {
             throw new Error('GOOGLE_API_KEY is not set in the environment variables.');
         }
 
-        // Create clients
+        // Initialize Tavily client for web search
         const client = tavily({ apiKey: TavilyApiKey });
 
-        // "ai" because genkit docs use it 
-        const ai = genkit({
+        // Initialize Genkit with Google AI plugin
+        const ai = genkit({ //ai as it appears in Genkit documentation
             plugins: [googleAI({ apiKey: GeminiApiKey })],
         });
 
-        // Create chat agent with search capabilities
+        // Create chat agent that combines search + AI reasoning
         const chat = createChatAgent(ai, client, googleAI.model('gemini-2.5-flash-lite'));
 
-        // Create interface
+        // Set up readline interface for interactive CLI input/output
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: chalk.green.bold('\n💬 Ask a question (or type "exit" to quit): '),
             terminal: true
         });
-        // readline creates a controlled conversation loop between stdin(what the user types) and stdout(what the program prints).
 
         console.log(chalk.cyan.bold('\n╔═══════════════════════════════════════════════════╗'));
         console.log(chalk.cyan.bold('║   Welcome to Myperplexity CLI - Interactive Mode  ║'));
@@ -58,36 +65,36 @@ async function startInteractive() {
 
         rl.prompt();
 
+        // Event handler for each line of user input
         rl.on('line', async (line) => {
             const query = line.trim();
 
-            // If user didn't type anything.
+            // Skip empty input
             if (!query) {
                 rl.prompt();
                 return;
             }
 
-            // Exit commands
+            // Handle exit commands
             if (query.toLowerCase() === 'exit' || query.toLowerCase() === 'quit') {
                 console.log(chalk.yellow('\n👋 Exiting Superplexity CLI. Goodbye!\n'));
                 rl.close();
                 return;
             }
 
-            // If the user typed a query - pause and process
+            // Pause input while processing the query
             rl.pause();
 
             let spinner;
             try {
                 spinner = ora('🧁 Thinking...').start();
 
-
-                // Call Chat
+                // Send query to chat agent (handles search + AI response)
                 const { text } = await chat.send(query);
 
                 spinner.succeed('✅ Answer Received!\n');
 
-                // Show the answer (Simulated)
+                // Display the AI-generated answer with sources
                 console.log(chalk.blue.bold('Answer:'));
                 console.log(chalk.white(text));
 
@@ -95,7 +102,7 @@ async function startInteractive() {
                 if (spinner) spinner.fail('❌ Error occurred while getting the answer.');
                 console.error(chalk.red('Error:'), error.message);
             } finally {
-                rl.resume(); // reanudate entry
+                rl.resume(); // Resume accepting input
                 rl.prompt();
             }
         });
@@ -103,15 +110,14 @@ async function startInteractive() {
     } catch (error) {
         console.error(chalk.red('\n❌ Error:'), error.message);
 
+        // Provide helpful hints for common errors
         if (error.message.includes('TAVILY_API_KEY')) {
             console.log(chalk.yellow('\n💡 Tip: Make sure to set your TAVILY_API_KEY in the .env file'));
         }
         if (error.message.includes('GOOGLE_API_KEY')) {
             console.log(chalk.yellow('\n💡 Tip: Make sure to set your GOOGLE_API_KEY in the .env file '));
         }
-        process.exit(1);
-        // Force the process to exit with an error code so the CLI
-        // doesn’t continue running after a fatal startup failure.
+        process.exit(1); // Exit with error code to prevent CLI from continuing after fatal failure
     }
 }
 

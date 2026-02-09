@@ -48,7 +48,7 @@ logs/
 # pnpm-lock.yaml
 
 # doc files
-docs/
+shots_private/
 notes.md
 
 # Genkit files
