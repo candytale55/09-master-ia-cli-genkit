@@ -17,7 +17,7 @@ export function createSearchTool(ai, client) {
 
         // Format searchResults
 
-        return `Search results for "${input.query}":\n`
+        return `Search results for "${input.query}":`;
     });    
 }
 
