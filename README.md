@@ -152,17 +152,8 @@ The Genkit UI allows you to:
 ### Node.js APIs
 - [Readline Module](https://nodejs.org/api/readline.html) - Interactive CLI
 
-## Learning Source
+## Learning Project
 
 This project was developed as part of the [**Master de Desarrollo con IA**](https://thebigschool.com/master-desarrollo-con-ia/) by [Big School](https://thebigschool.com/), a comprehensive program covering AI development with modern tools and frameworks.
 
-
 **Completion Date**: February 9, 2026
-
-## Possible Future Enhancements
-
-- [ ] Use native Node.js fetch instead of Tavily package dependency
-- [ ] Add conversation persistence (save/load chat history)
-- [ ] Implement multi-turn context awareness
-- [ ] Add support for different AI models
-- [ ] Web dashboard interface alongside CLI
